@@ -1,0 +1,49 @@
+version: "3.3"
+
+services:
+  db:
+    image: postgres:13.2
+    container_name: gestionar_database
+    restart: always
+    volumes:
+      - ./database:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: gestionar_db
+      POSTGRES_USER: gestionar
+      POSTGRES_PASSWORD: 123Gestionar!
+    ports:
+      - 5432:5432
+
+  pgadmin:
+    container_name: gestionar_pgadmin
+    image: dpage/pgadmin4:latest
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: fernandodanielvalls@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "False"
+      PGADMIN_CONFIG_CONSOLE_LOG_LEVEL: 10
+      PGADMIN_CONFIG_CSRF_ENABLED: "False"
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+
+  backend_django:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+   
+    volumes:
+      - ./backend_django:/app
+    ports:
+      - "8000:8000"
+    environment:
+      DB_ENGINE: POSTGRES
+    stdin_open: true
+    tty: true
+    depends_on:
+      - db
+
+  
